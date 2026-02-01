@@ -1,6 +1,8 @@
 # InjectGPT
 
 
+![UI Screenshot](ui.png)
+
 This extension injects custom system, developer and the model you want into ChatGPT. Once set it always use that. For exmaple you can write a new system prompt and ChatGPT will always use that for your conversations.
 
 
