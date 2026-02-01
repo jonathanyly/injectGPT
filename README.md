@@ -1,5 +1,6 @@
 # InjectGPT
 
+![How to use](lol.mp4)
 
 This extension injects a custom system, developer and the model you want into ChatGPT. Once set it always use that. For exmaple you can write a new system prompt and ChatGPT will always use that for your conversations.
 
