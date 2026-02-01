@@ -1,0 +1,697 @@
+/* ===== ChatGPT-Style UI ===== */
+#twopane-root {
+  --bg-primary: #212121;
+  --bg-secondary: #2f2f2f;
+  --bg-surface: #3e3e3e;
+  
+  --text-primary: #ececec;
+  --text-secondary: #c5c5c5;
+  --text-tertiary: #8e8e8e;
+  
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-medium: rgba(255, 255, 255, 0.15);
+  
+  --user-bg: #2f2f2f;
+  --bot-bg: transparent;
+  
+  --composer-bg: rgba(64, 65, 79, 0.9);
+  --composer-border: rgba(255, 255, 255, 0.2);
+  
+  --accent-primary: #10a37f;
+  --accent-hover: #0d8a6a;
+  
+  --btn-bg: rgba(255, 255, 255, 0.05);
+  --btn-hover: rgba(255, 255, 255, 0.1);
+  
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary));
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  z-index: 999999;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Header ===== */
+#twopane-root .tw-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--border-subtle);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+}
+
+#twopane-root .tw-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#twopane-root .tw-header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+#twopane-root .tw-model-badge {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: rgba(16, 163, 127, 0.15);
+  border: 1px solid rgba(16, 163, 127, 0.3);
+  padding: 3px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#twopane-root .tw-settings-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: var(--btn-bg);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
+}
+
+#twopane-root .tw-settings-btn:hover,
+#twopane-root .tw-settings-btn.tw-active {
+  background: var(--btn-hover);
+  color: var(--text-primary);
+}
+
+#twopane-root .tw-settings-btn .tw-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* ===== Settings Panel ===== */
+#twopane-root .tw-settings-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+#twopane-root .tw-settings-panel.tw-show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#twopane-root .tw-settings-content {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+#twopane-root .tw-settings-panel.tw-show .tw-settings-content {
+  transform: scale(1);
+}
+
+#twopane-root .tw-settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+#twopane-root .tw-settings-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+#twopane-root .tw-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+#twopane-root .tw-close-btn:hover {
+  background: var(--btn-hover);
+  color: var(--text-primary);
+}
+
+#twopane-root .tw-setting-group {
+  margin-bottom: 24px;
+}
+
+#twopane-root .tw-setting-group:last-child {
+  margin-bottom: 0;
+}
+
+#twopane-root .tw-setting-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+#twopane-root .tw-setting-select {
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+#twopane-root .tw-setting-select:hover {
+  border-color: var(--border-medium);
+  background: var(--bg-primary);
+}
+
+#twopane-root .tw-setting-select:focus {
+  border-color: var(--accent-primary);
+  background: var(--bg-primary);
+}
+
+#twopane-root .tw-setting-textarea {
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--text-primary);
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+}
+
+#twopane-root .tw-setting-textarea:hover {
+  border-color: var(--border-medium);
+  background: var(--bg-primary);
+}
+
+#twopane-root .tw-setting-textarea:focus {
+  border-color: var(--accent-primary);
+  background: var(--bg-primary);
+}
+
+#twopane-root .tw-setting-hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 6px;
+}
+
+/* ===== Chat Area ===== */
+#twopane-root .tw-chat {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 0 120px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Custom scrollbar */
+#twopane-root .tw-chat::-webkit-scrollbar {
+  width: 8px;
+}
+
+#twopane-root .tw-chat::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#twopane-root .tw-chat::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+#twopane-root .tw-chat::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ===== Message Rows ===== */
+#twopane-root .tw-row {
+  display: flex;
+  width: 100%;
+  padding: 0 16px;
+}
+
+#twopane-root .tw-row.tw-user {
+  justify-content: flex-end;
+}
+
+#twopane-root .tw-row.tw-bot {
+  justify-content: center;
+}
+
+/* ===== Bubbles ===== */
+#twopane-root .tw-bubble {
+  max-width: 700px;
+  font-size: 16px;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+#twopane-root .tw-row.tw-user .tw-bubble {
+  background: var(--user-bg);
+  border-radius: 20px;
+  padding: 12px 16px;
+  border: 1px solid var(--border-subtle);
+  max-width: 600px;
+}
+
+#twopane-root .tw-row.tw-bot .tw-bot-container {
+  max-width: 700px;
+  width: 100%;
+}
+
+#twopane-root .tw-row.tw-bot .tw-bubble {
+  background: var(--bot-bg);
+  padding: 0;
+  margin-bottom: 8px;
+}
+
+/* ===== Action Buttons ===== */
+#twopane-root .tw-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-left: 2px;
+}
+
+#twopane-root .tw-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+#twopane-root .tw-iconbtn:hover {
+  background: var(--btn-hover);
+  color: var(--text-primary);
+}
+
+#twopane-root .tw-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+  fill: currentColor;
+}
+
+/* ===== Composer (Bottom Input) ===== */
+#twopane-root .tw-composerWrap {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  background: linear-gradient(to top, var(--bg-secondary) 50%, transparent);
+  pointer-events: none;
+  z-index: 10;
+}
+
+#twopane-root .tw-composer {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 768px;
+  background: var(--composer-bg);
+  border: 1px solid var(--composer-border);
+  border-radius: 24px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== Text Input ===== */
+#twopane-root .tw-input {
+  flex: 1;
+  min-height: 44px;
+  max-height: 200px;
+  resize: none;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.5;
+  padding: 10px 4px;
+  overflow-y: auto;
+  font-family: inherit;
+}
+
+#twopane-root .tw-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+#twopane-root .tw-input::-webkit-scrollbar {
+  width: 4px;
+}
+
+#twopane-root .tw-input::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+/* ===== Send Button (Modern Gradient) ===== */
+#twopane-root .tw-send {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
+  margin-bottom: 4px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+#twopane-root .tw-send::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #764ba2 0%, #f093fb 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#twopane-root .tw-send:hover::before {
+  opacity: 1;
+}
+
+#twopane-root .tw-send:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+#twopane-root .tw-send:active {
+  transform: translateY(0) scale(0.95);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+#twopane-root .tw-send-icon {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: transform 0.3s ease;
+}
+
+#twopane-root .tw-send:hover .tw-send-icon {
+  transform: translateX(2px);
+}
+
+#twopane-root .tw-send .tw-icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* ===== Disclaimer ===== */
+#twopane-root .tw-disclaimer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  padding: 8px 16px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ===== Hidden Elements ===== */
+#twopane-root .tw-hidden,
+.tw-hidden {
+  position: absolute !important;
+  left: -9999px !important;
+  top: 0 !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+  #twopane-root .tw-header {
+    padding: 10px 16px;
+  }
+  
+  #twopane-root .tw-header-title {
+    font-size: 14px;
+  }
+  
+  #twopane-root .tw-model-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+  }
+  
+  #twopane-root .tw-settings-content {
+    width: 95%;
+    padding: 20px;
+  }
+  
+  #twopane-root .tw-chat {
+    padding: 16px 0 100px 0;
+    gap: 16px;
+  }
+  
+  #twopane-root .tw-row {
+    padding: 0 12px;
+  }
+  
+  #twopane-root .tw-bubble {
+    font-size: 15px;
+  }
+  
+  #twopane-root .tw-composer {
+    max-width: calc(100% - 32px);
+  }
+  
+  #twopane-root .tw-composerWrap {
+    padding: 12px;
+  }
+}
+
+/* ===== Loading Animation ===== */
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+#twopane-root .tw-bubble:empty::after {
+  content: "●●●";
+  animation: pulse 1.5s ease-in-out infinite;
+  letter-spacing: 2px;
+}
+
+/* ===== Smooth Animations ===== */
+#twopane-root .tw-row {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Focus States ===== */
+#twopane-root .tw-input:focus {
+  outline: none;
+}
+
+#twopane-root .tw-iconbtn:focus-visible,
+#twopane-root .tw-send:focus-visible,
+#twopane-root .tw-settings-btn:focus-visible,
+#twopane-root .tw-close-btn:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+#twopane-root .tw-setting-select:focus-visible,
+#twopane-root .tw-setting-textarea:focus-visible {
+  outline: none;
+}
+
+/* ===== Send Button Disabled State ===== */
+#twopane-root .tw-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+#twopane-root .tw-send:disabled:hover {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* ===== Code Blocks ===== */
+#twopane-root .tw-code-block {
+  background: #1e1e1e;
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px 0;
+  overflow-x: auto;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  position: relative;
+}
+
+#twopane-root .tw-code-block::before {
+  content: attr(data-lang);
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+#twopane-root .tw-code-block code {
+  color: #e6e6e6;
+  background: none;
+  padding: 0;
+  font-size: inherit;
+  white-space: pre;
+  display: block;
+}
+
+#twopane-root .tw-inline-code {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f97583;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 0.9em;
+}
+
+#twopane-root .tw-bubble strong {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+#twopane-root .tw-bubble em {
+  font-style: italic;
+}
+
+/* ===== Toast Notifications ===== */
+.tw-toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(40, 40, 40, 0.95);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  z-index: 10000;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tw-toast.tw-show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.tw-toast::before {
+  content: '✓';
+  display: inline-block;
+  margin-right: 8px;
+  color: #4ade80;
+  font-weight: bold;
+}
