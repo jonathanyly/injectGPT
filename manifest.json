@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "InjectGPT",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "description": "Inject your custom system and developer prompt. Also lets you change the model and hardcode it!",
   "permissions": [
     "storage"
@@ -10,6 +10,12 @@
     "https://chatgpt.com/*",
     "https://*.chatgpt.com/*"
   ],
+  "icons": {
+    "16": "injectgpt.png",
+    "32": "injectgpt.png",
+    "48": "injectgpt.png",
+    "128": "injectgpt.png"
+  },
   "content_scripts": [
     {
       "matches": [
