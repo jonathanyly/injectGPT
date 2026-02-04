@@ -1,7 +1,10 @@
 # InjectGPT
 
 🎥 **Demo Video**  
-https://www.youtube.com/watch?v=cB5hnW5wSJ8
+[![InjectGPT Demo Video](https://img.youtube.com/vi/cB5hnW5wSJ8/maxresdefault.jpg)](https://www.youtube.com/watch?v=cB5hnW5wSJ8)
+
+> ▶️ Click the image to watch the demo
+
 
 ---
 
