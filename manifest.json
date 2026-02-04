@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "InjectGPT",
-  "version": "1.0.0",
+  "version": "2.0.1",
   "description": "Inject your custom system and developer prompt. Also lets you change the model and hardcode it!",
   "permissions": [
     "storage"
