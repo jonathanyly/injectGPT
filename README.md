@@ -25,7 +25,7 @@ The extension intercepts all `/conversation` requests at the network level, repl
 
 ## usage
 
-1. go to `https://chatgpt.com` (or any translate page)
+1. go to `https://chatgpt.com`
 2. Press InjectGPT Settings
 3. change model and prompts
 4. start chatting
