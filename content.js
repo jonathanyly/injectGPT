@@ -25,16 +25,16 @@
   }
 
   function injectInterceptor() {
-    if (document.getElementById("chatgpt-translator-injector")) return;
+    if (document.getElementById("chatgpt-injector")) return;
     const script = document.createElement("script");
-    script.id = "chatgpt-translator-injector";
+    script.id = "chatgpt-injector";
     script.src = chrome.runtime.getURL("injector.js");
     (document.head || document.documentElement).appendChild(script);
   }
 
   function updateModel(model) {
     window.dispatchEvent(
-      new CustomEvent("chatgpt-translator-update-model", {
+      new CustomEvent("chatgpt-update-model", {
         detail: { model },
       })
     );
@@ -42,7 +42,7 @@
 
   function updateSystemPrompt(prompt) {
     window.dispatchEvent(
-      new CustomEvent("chatgpt-translator-update-system-prompt", {
+      new CustomEvent("chatgpt-update-system-prompt", {
         detail: { prompt },
       })
     );
@@ -50,15 +50,23 @@
 
   function updateDeveloperPrompt(prompt) {
     window.dispatchEvent(
-      new CustomEvent("chatgpt-translator-update-developer-prompt", {
+      new CustomEvent("chatgpt-update-developer-prompt", {
         detail: { prompt },
+      })
+    );
+  }
+
+  function updateEnabled(enabled) {
+    window.dispatchEvent(
+      new CustomEvent("chatgpt-update-enabled", {
+        detail: { enabled },
       })
     );
   }
 
   function ensureStyles() {
     if (document.getElementById("injectgpt-settings-styles")) return;
-
+    //
     const style = el("style", { id: "injectgpt-settings-styles" });
     style.textContent = `
       #${BTN_ID}{
@@ -74,9 +82,11 @@
         font:600 13px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
         cursor:pointer;
         box-shadow:0 10px 30px rgba(0,0,0,.25);
+        transition: background 0.2s;
       }
       #${BTN_ID}:hover{ transform: translateY(-1px); }
       #${BTN_ID}:active{ transform: translateY(0px); }
+      #${BTN_ID}.disabled{ background:#666; }
 
       #${PANEL_ID}{
         position:fixed;
@@ -111,6 +121,11 @@
         margin:0;
         font-size:14px;
       }
+      #${PANEL_ID} .hdr-right{
+        display:flex;
+        align-items:center;
+        gap:8px;
+      }
       #${PANEL_ID} .close{
         border:0;
         background:transparent;
@@ -121,6 +136,40 @@
         border-radius:10px;
       }
       #${PANEL_ID} .close:hover{ background:#f3f3f3; }
+
+      #${PANEL_ID} .toggle-container{
+        display:flex;
+        align-items:center;
+        gap:8px;
+      }
+      #${PANEL_ID} .toggle-label{
+        font-size:12px;
+        font-weight:600;
+        color:#555;
+      }
+      #${PANEL_ID} .toggle{
+        position:relative;
+        width:44px;
+        height:24px;
+        background:#ccc;
+        border-radius:24px;
+        cursor:pointer;
+        transition:background 0.2s;
+      }
+      #${PANEL_ID} .toggle.on{ background:#22c55e; }
+      #${PANEL_ID} .toggle::after{
+        content:'';
+        position:absolute;
+        top:2px;
+        left:2px;
+        width:20px;
+        height:20px;
+        background:#fff;
+        border-radius:50%;
+        transition:transform 0.2s;
+        box-shadow:0 1px 3px rgba(0,0,0,.2);
+      }
+      #${PANEL_ID} .toggle.on::after{ transform:translateX(20px); }
 
       #${PANEL_ID} .body{ padding:14px; display:flex; flex-direction:column; gap:12px; }
       #${PANEL_ID} label{ font-size:12px; font-weight:700; display:block; margin-bottom:6px; }
@@ -189,14 +238,16 @@
     ensureStyles();
 
     // Load saved values (with defaults)
-    const saved = await storageGet(["systemPrompt", "developerPrompt", "selectedModel"]);
+    const saved = await storageGet(["systemPrompt", "developerPrompt", "selectedModel", "enabled"]);
     const systemPrompt = typeof saved.systemPrompt === "string" ? saved.systemPrompt : "You are a helpful assistant.";
     const developerPrompt = typeof saved.developerPrompt === "string" ? saved.developerPrompt : "";
     const selectedModel = typeof saved.selectedModel === "string" ? saved.selectedModel : "gpt-5-2";
+    const enabled = typeof saved.enabled === "boolean" ? saved.enabled : true;
 
     // Button
     if (!document.getElementById(BTN_ID)) {
-      const btn = el("button", { id: BTN_ID, type: "button", text: "⚙️ InjectGPT Settings" });
+      const btn = el("button", { id: BTN_ID, type: "button", text: enabled ? "⚙️ InjectGPT" : "⚙️ InjectGPT (Off)" });
+      if (!enabled) btn.classList.add("disabled");
       btn.addEventListener("click", () => {
         const panel = document.getElementById(PANEL_ID);
         panel.classList.toggle("show");
@@ -206,6 +257,9 @@
 
     // Panel
     if (!document.getElementById(PANEL_ID)) {
+      // Toggle switch
+      const toggle = el("div", { class: enabled ? "toggle on" : "toggle" });
+      
       // Model select
       const modelSelect = el("select");
       for (const model of MODELS) {
@@ -226,7 +280,13 @@
         el("div", { class: "box" }, [
           el("div", { class: "hdr" }, [
             el("h3", { text: "InjectGPT Settings" }),
-            el("button", { class: "close", type: "button", text: "✕", title: "Close" }),
+            el("div", { class: "hdr-right" }, [
+              el("div", { class: "toggle-container" }, [
+                el("span", { class: "toggle-label", text: "Enabled" }),
+                toggle,
+              ]),
+              el("button", { class: "close", type: "button", text: "✕", title: "Close" }),
+            ]),
           ]),
           el("div", { class: "body" }, [
             el("div", {}, [
@@ -252,11 +312,50 @@
         ]),
       ]);
 
-      // Close interactions
+      // Helper to save current settings
+      async function saveSettings() {
+        const model = modelSelect.value;
+        const sys = sysTa.value ?? "";
+        const dev = devTa.value ?? "";
+        const isEnabled = toggle.classList.contains("on");
+        await storageSet({ 
+          selectedModel: model,
+          systemPrompt: sys, 
+          developerPrompt: dev,
+          enabled: isEnabled
+        });
+        updateModel(model);
+        updateSystemPrompt(sys);
+        updateDeveloperPrompt(dev);
+        updateEnabled(isEnabled);
+        
+        // Update button text
+        const btn = document.getElementById(BTN_ID);
+        if (btn) {
+          btn.textContent = isEnabled ? "⚙️ InjectGPT" : "⚙️ InjectGPT (Off)";
+          btn.classList.toggle("disabled", !isEnabled);
+        }
+      }
+
+      // Toggle click handler
+      toggle.addEventListener("click", async () => {
+        toggle.classList.toggle("on");
+        await saveSettings();
+      });
+
+      // Close interactions - save on close
       const closeBtn = panel.querySelector(".close");
-      closeBtn.addEventListener("click", () => panel.classList.remove("show"));
-      panel.addEventListener("click", (e) => {
-        if (e.target === panel) panel.classList.remove("show");
+      closeBtn.addEventListener("click", async () => {
+        await saveSettings();
+        panel.classList.remove("show");
+      });
+      
+      // Save when clicking outside (on backdrop)
+      panel.addEventListener("click", async (e) => {
+        if (e.target === panel) {
+          await saveSettings();
+          panel.classList.remove("show");
+        }
       });
 
       // Buttons
@@ -266,28 +365,28 @@
         modelSelect.value = "gpt-5-2";
         sysTa.value = "You are a helpful assistant.";
         devTa.value = "";
+        toggle.classList.add("on");
         await storageSet({ 
           selectedModel: modelSelect.value,
           systemPrompt: sysTa.value, 
-          developerPrompt: devTa.value 
+          developerPrompt: devTa.value,
+          enabled: true
         });
         updateModel(modelSelect.value);
         updateSystemPrompt(sysTa.value);
         updateDeveloperPrompt(devTa.value);
+        updateEnabled(true);
+        
+        // Update button
+        const btn = document.getElementById(BTN_ID);
+        if (btn) {
+          btn.textContent = "⚙️ InjectGPT";
+          btn.classList.remove("disabled");
+        }
       });
 
       saveBtn.addEventListener("click", async () => {
-        const model = modelSelect.value;
-        const sys = sysTa.value ?? "";
-        const dev = devTa.value ?? "";
-        await storageSet({ 
-          selectedModel: model,
-          systemPrompt: sys, 
-          developerPrompt: dev 
-        });
-        updateModel(model);
-        updateSystemPrompt(sys);
-        updateDeveloperPrompt(dev);
+        await saveSettings();
         panel.classList.remove("show");
       });
 
@@ -298,6 +397,7 @@
         updateModel(selectedModel);
         updateSystemPrompt(sysTa.value);
         updateDeveloperPrompt(devTa.value);
+        updateEnabled(enabled);
       }, 300);
     }
   }
