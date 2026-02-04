@@ -1,11 +1,12 @@
 // This script runs in the MAIN world (page context) and intercepts fetch requests
 (function() {
-  if (window.__CHATGPT_TRANSLATOR_INTERCEPTED__) return;
-  window.__CHATGPT_TRANSLATOR_INTERCEPTED__ = true;
-  window.__CHATGPT_TRANSLATOR_MODEL__ = "gpt-5-2";
-  window.__CHATGPT_TRANSLATOR_SYSTEM_PROMPT__ = "You are a helpful assistant.";
-  window.__CHATGPT_TRANSLATOR_DEVELOPER_PROMPT__ = "";
-  window.__CHATGPT_TRANSLATOR_CONVERSATION_MODE__ = null;
+  if (window.__CHATGPT_INTERCEPTED__) return;
+  window.__CHATGPT_INTERCEPTED__ = true;
+  window.__CHATGPT_MODEL__ = "gpt-5-2";
+  window.__CHATGPT_SYSTEM_PROMPT__ = "You are a helpful assistant.";
+  window.__CHATGPT_DEVELOPER_PROMPT__ = "";
+  window.__CHATGPT_CONVERSATION_MODE__ = null;
+  window.__CHATGPT_ENABLED__ = true;
   
   function isConversationUrl(url) {
     if (!url) return false;
@@ -14,10 +15,10 @@
   }
 
   function modifyRequestBody(bodyData) {
-    const currentModel = window.__CHATGPT_TRANSLATOR_MODEL__;
-    const systemPrompt = window.__CHATGPT_TRANSLATOR_SYSTEM_PROMPT__;
-    const developerPrompt = window.__CHATGPT_TRANSLATOR_DEVELOPER_PROMPT__;
-    const conversationMode = window.__CHATGPT_TRANSLATOR_CONVERSATION_MODE__;
+    const currentModel = window.__CHATGPT_MODEL__;
+    const systemPrompt = window.__CHATGPT_SYSTEM_PROMPT__;
+    const developerPrompt = window.__CHATGPT_DEVELOPER_PROMPT__;
+    const conversationMode = window.__CHATGPT_CONVERSATION_MODE__;
     
     // Modify the model
     if (currentModel) {
@@ -96,6 +97,11 @@
   window.fetch = async function(...args) {
     let [input, options] = args;
     
+    // Skip interception if disabled
+    if (!window.__CHATGPT_ENABLED__) {
+      return originalFetch.apply(this, [input, options]);
+    }
+    
     // Get URL from input (could be string, URL, or Request)
     let url;
     if (typeof input === 'string') {
@@ -161,6 +167,11 @@
   };
   
   XMLHttpRequest.prototype.send = function(body) {
+    // Skip interception if disabled
+    if (!window.__CHATGPT_ENABLED__) {
+      return originalXHRSend.call(this, body);
+    }
+    
     if (isConversationUrl(this._url) && body && typeof body === 'string') {
       try {
         let bodyData = JSON.parse(body);
@@ -175,30 +186,37 @@
   };
   
   // Listen for model updates from content script
-  window.addEventListener('chatgpt-translator-update-model', function(e) {
+  window.addEventListener('chatgpt-update-model', function(e) {
     if (e.detail && e.detail.model) {
-      window.__CHATGPT_TRANSLATOR_MODEL__ = e.detail.model;
+      window.__CHATGPT_MODEL__ = e.detail.model;
     }
   });
   
   // Listen for system prompt updates from content script
-  window.addEventListener('chatgpt-translator-update-system-prompt', function(e) {
+  window.addEventListener('chatgpt-update-system-prompt', function(e) {
     if (e.detail && e.detail.prompt !== undefined) {
-      window.__CHATGPT_TRANSLATOR_SYSTEM_PROMPT__ = e.detail.prompt;
+      window.__CHATGPT_SYSTEM_PROMPT__ = e.detail.prompt;
     }
   });
   
   // Listen for developer prompt updates from content script
-  window.addEventListener('chatgpt-translator-update-developer-prompt', function(e) {
+  window.addEventListener('chatgpt-update-developer-prompt', function(e) {
     if (e.detail && e.detail.prompt !== undefined) {
-      window.__CHATGPT_TRANSLATOR_DEVELOPER_PROMPT__ = e.detail.prompt;
+      window.__CHATGPT_DEVELOPER_PROMPT__ = e.detail.prompt;
     }
   });
   
   // Listen for conversation mode updates from content script
-  window.addEventListener('chatgpt-translator-update-conversation-mode', function(e) {
+  window.addEventListener('chatgpt-update-conversation-mode', function(e) {
     if (e.detail && e.detail.kind !== undefined) {
-      window.__CHATGPT_TRANSLATOR_CONVERSATION_MODE__ = e.detail.kind;
+      window.__CHATGPT_CONVERSATION_MODE__ = e.detail.kind;
+    }
+  });
+  
+  // Listen for enabled/disabled updates from content script
+  window.addEventListener('chatgpt-update-enabled', function(e) {
+    if (e.detail && e.detail.enabled !== undefined) {
+      window.__CHATGPT_ENABLED__ = e.detail.enabled;
     }
   });
 })();
