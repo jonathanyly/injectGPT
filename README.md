@@ -1,42 +1,63 @@
 # InjectGPT
 
+🎥 **Demo Video**  
+https://www.youtube.com/watch?v=cB5hnW5wSJ8
+
+---
 
 ![UI Screenshot](new_ui.png)
 
-This extension injects custom system, developer and the model you want into ChatGPT. Once set it always use that. For exmaple you can write a new system prompt and ChatGPT will always use that for your conversations.
+InjectGPT is a Chrome extension that injects a **custom system prompt**, **developer prompt**, and **model selection** directly into ChatGPT requests.
 
+Once configured, it **always uses your chosen settings** for every conversation.
 
-The extension intercepts all `/conversation` requests at the network level, replacing the model, system prompt, and developer prompt values with your current settings before they reach OpenAI's servers.
+For example, you can define a new system prompt and ChatGPT will permanently behave according to it.
 
-## features
+---
 
-- **model selection** - switch between gpt-5-2, gpt-5-2-thinking, and other models
-- **custom system prompt** - define how the AI behaves
-- **custom developer prompt** - add additional instructions after user messages
-- **settings persistence** - your preferences are saved in localStorage
+## How It Works
 
-## installation
+The extension intercepts all `/conversation` requests at the **network level**, replacing the **model**, **system prompt**, and **developer prompt** with your current settings *before* they reach OpenAI’s servers.
 
-1. clone or download this repo
-2. go to `chrome://extensions`
-3. enable "Developer mode"
-4. click "Load unpacked"
-5. select the extension folder
+---
 
-## usage
+## Features
 
-1. go to `https://chatgpt.com`
-2. Press InjectGPT Settings
-3. change model and prompts
-4. start chatting
+- **Model selection** – switch between `gpt-5-2`, `gpt-5-2-thinking`, and other models  
+- **Custom system prompt** – define how the AI behaves  
+- **Custom developer prompt** – inject additional instructions after user messages  
+- **Settings persistence** – preferences are saved in `localStorage`
 
-## files
+---
 
-- `manifest.json` - extension config
-- `content.js` - UI injection and settings management
-- `injector.js` - network-level request interception
-- `styles.css` - dark theme styling
+## Installation
 
-## note
+1. Clone or download this repository  
+2. Open `chrome://extensions`  
+3. Enable **Developer mode**  
+4. Click **Load unpacked**  
+5. Select the extension folder  
 
-For Educational Purposes only.
+---
+
+## Usage
+
+1. Go to https://chatgpt.com  
+2. Press **InjectGPT Settings**  
+3. Change model and prompts  
+4. Start chatting  
+
+---
+
+## Files
+
+- `manifest.json` – extension configuration  
+- `content.js` – UI injection and settings management  
+- `injector.js` – network-level request interception  
+- `styles.css` – dark theme styling  
+
+---
+
+## Note
+
+⚠️ **For educational purposes only.**
