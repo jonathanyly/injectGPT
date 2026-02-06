@@ -248,7 +248,9 @@
       }
       #${PANEL_ID} .btn.secondary{ background:#eee; }
       #${PANEL_ID} .btn.primary{ background:#111; color:#fff; }
-      #${PANEL_ID} .btn.danger{ background:#ef4444; color:#fff; }
+      #${PANEL_ID} .btn.danger{ background:#fee2e2; color:#dc2626; border:1px solid #fecaca; transition: background 0.15s; }
+      #${PANEL_ID} .btn.danger:hover{ background:#fecaca; }
+      #${PANEL_ID} .btn.danger:disabled{ background:#f5f5f5; color:#ccc; border-color:#eee; }
       #${PANEL_ID} .btn:disabled{ opacity:0.5; cursor:not-allowed; }
       #${PANEL_ID} .hint{
         font-size:12px;
@@ -292,6 +294,23 @@
         background:#e5e5e5;
         margin:4px 0;
       }
+      #${PANEL_ID} .bmc-btn{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        background:#FFDD00;
+        color:#000;
+        border:0;
+        border-radius:10px;
+        padding:6px 12px;
+        font:600 12px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        cursor:pointer;
+        text-decoration:none;
+        transition: background 0.15s, transform 0.1s;
+        white-space:nowrap;
+      }
+      #${PANEL_ID} .bmc-btn:hover{ background:#ffca00; transform:translateY(-1px); }
+      #${PANEL_ID} .bmc-btn:active{ transform:translateY(0); }
     `;
     document.documentElement.appendChild(style);
   }
@@ -378,7 +397,7 @@
       ]);
       
       const newProfileBtn = el("button", { class: "btn secondary", type: "button", text: "+ New" });
-      const deleteProfileBtn = el("button", { class: "btn danger", type: "button", text: "🗑️" });
+      const deleteProfileBtn = el("button", { class: "btn danger", type: "button", html: "✕ Delete" });
       
       // Disable delete for default profile
       function updateDeleteBtn() {
@@ -392,11 +411,21 @@
       const devTa = el("textarea");
       devTa.value = activeProfile.developerPrompt;
 
+      // Buy Me a Coffee link
+      const bmcLink = el("a", { 
+        class: "bmc-btn", 
+        href: "https://buymeacoffee.com/jonathanyly", 
+        target: "_blank",
+        rel: "noopener noreferrer",
+        html: '☕ Buy Me a Coffee'
+      });
+
       const panel = el("div", { id: PANEL_ID }, [
         el("div", { class: "box" }, [
           el("div", { class: "hdr" }, [
             el("h3", { text: "InjectGPT Settings" }),
             el("div", { class: "hdr-right" }, [
+              bmcLink,
               el("div", { class: "toggle-container" }, [
                 el("span", { class: "toggle-label", text: "Enabled" }),
                 toggle,
@@ -432,7 +461,7 @@
             ]),
           ]),
           el("div", { class: "actions" }, [
-            el("button", { class: "btn secondary", type: "button", text: "Reset Profile" }),
+            el("button", { class: "btn secondary", type: "button", html: "☕ Reset Profile" }),
             el("button", { class: "btn primary", type: "button", text: "Save" }),
           ]),
         ]),
