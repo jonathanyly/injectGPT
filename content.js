@@ -417,7 +417,7 @@
         href: "https://buymeacoffee.com/jonathanyly", 
         target: "_blank",
         rel: "noopener noreferrer",
-        html: '☕ Buy Me a Coffee'
+        html: '☕'
       });
 
       const panel = el("div", { id: PANEL_ID }, [
