@@ -461,7 +461,7 @@
             ]),
           ]),
           el("div", { class: "actions" }, [
-            el("button", { class: "btn secondary", type: "button", html: "☕ Reset Profile" }),
+            el("button", { class: "btn secondary", type: "button", html: "Reset Profile" }),
             el("button", { class: "btn primary", type: "button", text: "Save" }),
           ]),
         ]),
