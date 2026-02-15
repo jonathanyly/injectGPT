@@ -5,6 +5,8 @@
 
 > ▶️ Click the image to watch the demo
 
+## Chromestore Link
+[Chrome Extension](https://chromewebstore.google.com/detail/injectgpt/aciknfjmhejepfklbedciieikagjohnh)
 
 ---
 
